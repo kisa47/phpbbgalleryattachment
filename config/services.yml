@@ -1,0 +1,11 @@
+services:
+    kisa47.phpbbgalleryattachment.listener:
+        class: kisa47\phpbbgalleryattachment\event\main_listener
+        arguments:
+            - '@language'
+            - '@template'
+            - '@phpbbgallery.core.auth'
+            - '@service_container'
+            - '@phpbbgallery.core.config'
+        tags:
+            - { name: event.listener }

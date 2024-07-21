@@ -1,0 +1,138 @@
+<script type="text/javascript">
+
+	function attachImage(link) {
+		insert_text(link);
+		document.forms[form_name].elements[text_name].focus();
+	}
+
+	async function request(url, data) {
+		const response = await fetch(url, data)
+		const text = await response.text()
+
+		var parser = new DOMParser();
+		return parser.parseFromString(text, "text/html");
+	}
+
+	async function loadUpdateForm() {
+		var id = document.querySelector('select[name="album_id"]').value;
+		var url = "{U_GALLERY}/album/" + id + "/upload";
+		console.log(url);
+		let htmlDoc = await request(url, {});
+		
+		field = document.querySelector('fieldset[class="gallery_table"]');
+
+		upload_field=htmlDoc.querySelector('form[enctype="multipart/form-data"]');
+		upload_field.querySelector('div [class="panel bg2"]').hidden = true;
+		upload_field.querySelectorAll('input').forEach((userItem) => {
+			userItem.id=userItem.name;
+			if ( userItem.type == "reset" || userItem.type == "submit") {
+				userItem.disabled = true;
+				userItem.hidden = true;
+			}
+			userItem.name+='_gallery';
+			//userItem.id="from_gallery";
+			userItem.class="gallery_table";
+		});
+		
+
+		field.innerHTML = upload_field.outerHTML;
+	}
+
+	async function uploadImage() {
+
+
+		var id = document.querySelector('select[name="album_id"]').value;
+		var url = "{U_GALLERY}/album/" + id + "/upload";
+		field = document.querySelector('fieldset[class="gallery_table"]');
+
+		var formData = new FormData();
+		
+		field.querySelectorAll('input').forEach((userItem) => {
+			if (userItem.type == "file") {
+				Array.from(userItem.files).forEach((file) => {
+					formData.append(userItem.id, file);
+				})
+				//formData.append(userItem.id, userItem.files[0]);
+				return;
+			} else if (userItem.type == "radio" || userItem.type == "checkbox") {
+				if (userItem.checked != true) {
+					return;
+				}
+			}
+			formData.append(userItem.id, userItem.value);
+		});
+
+		field.querySelectorAll('textarea').forEach((userItem) => {
+			formData.append(userItem.id, userItem.value);
+		});
+
+		htmlDoc = await request(url, {method: 'post', body: formData});
+
+		upload_field=htmlDoc.querySelector('form[id="postform"]');
+		message=htmlDoc.querySelector('div[id="message"]');
+
+		if (upload_field != null) {
+			upload_field.querySelector('div [class="panel bg2"]').hidden = true;
+			upload_field.querySelectorAll('input').forEach((userItem) => {
+				if ( userItem.type == "reset" || userItem.type == "submit") {
+					userItem.disabled = true;
+					userItem.hidden = true;
+				}
+				userItem.id=userItem.name;
+				userItem.name+='_gallery';
+				userItem.class="gallery_table";
+			});
+			upload_field.querySelectorAll('textarea').forEach((userItem) => {
+				userItem.id=userItem.name;
+				userItem.name=userItem.name+'gallery_';
+				userItem.class="gallery_table";
+			});
+			field.innerHTML = upload_field.outerHTML;
+		} else if (message != null ) {
+
+			var fields = field.querySelectorAll('input[id^="upload_ids"]')
+			field.innerHTML = null;
+			fields.forEach(async (userItem) => {
+				var id=userItem.value.split('$')[0];
+				var url = "{U_GALLERY}/image/" + id ;
+				data = await request(url, {});
+				data.querySelectorAll('input[value^="\["').forEach((link) => {
+					link.parentElement.innerHTML+='<input type="button" class="button2" value="Add files" id="add_files" onclick="attachImage(\'' + link.value + '\');" style="position: relative; z-index: 1;">'
+				});
+				let table = data.querySelector('div[class="postbody"]');
+				table.className = 'panel post';
+				field.innerHTML += table.outerHTML;
+			});
+		} 
+
+	}
+
+</script>
+
+<div class="panel bg3 panel-container" id="glalry-panel" style="display: block;">
+	<div class="inner">
+			<fieldset class="album">
+				<dl>
+					<dt><label for="album_id">{L_ALBUM_NAME}{L_COLON}</label></dt>
+					<dd class="album__dropbox">{S_SELECT_IMPORT}</dd>
+				</dl>
+			</fieldset>
+			<fieldset class="gallery_table">
+				
+			</fieldset>
+
+			<fieldset class="submit-buttons">
+					<button onclick="uploadImage();" type="button" class="button1">{L_SUBMIT}</button>
+			</fieldset>
+
+	</div>
+</div>
+
+<script type="text/javascript">
+	document.getElementById('album_id').selectedIndex = -1;
+</script>
+
+
+<input type="submit" tabindex="5" name="preview" value="Предпросмотр" class="button1" onclick="document.getElementById('postform').action += '#preview';">
+
+<input type="submit" tabindex="5" name="preview" value="Предпросмотр" class="button1" onclick="document.getElementById('postform').action += '#preview';">
