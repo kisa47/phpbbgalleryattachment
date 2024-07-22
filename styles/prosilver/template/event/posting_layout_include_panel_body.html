@@ -5,6 +5,17 @@
 		document.forms[form_name].elements[text_name].focus();
 	}
 
+	function disable_fiends() {
+		field = document.querySelector('fieldset[class="gallery_table"]');
+		field.querySelectorAll('input').forEach((userItem) => {
+			userItem.disabled = true;
+		});
+
+		upload_field.querySelectorAll('textarea').forEach((userItem) => {
+			userItem.disabled = true;
+		});
+	}
+
 	async function request(url, data) {
 		const response = await fetch(url, data)
 		const text = await response.text()
@@ -84,7 +95,7 @@
 			});
 			upload_field.querySelectorAll('textarea').forEach((userItem) => {
 				userItem.id=userItem.name;
-				userItem.name=userItem.name+'gallery_';
+				userItem.name='gallery_'+userItem.name;
 				userItem.class="gallery_table";
 			});
 			field.innerHTML = upload_field.outerHTML;
@@ -131,8 +142,3 @@
 <script type="text/javascript">
 	document.getElementById('album_id').selectedIndex = -1;
 </script>
-
-
-<input type="submit" tabindex="5" name="preview" value="Предпросмотр" class="button1" onclick="document.getElementById('postform').action += '#preview';">
-
-<input type="submit" tabindex="5" name="preview" value="Предпросмотр" class="button1" onclick="document.getElementById('postform').action += '#preview';">
