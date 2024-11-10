@@ -77,7 +77,7 @@ class main_listener implements EventSubscriberInterface
 		// foreach ($albums as $VAR) 
 		// {
 		$gallery_album = $this->phpbb_container->get('phpbbgallery.core.album');
-		$box = str_replace("select", 'select onchange="loadUpdateForm();"', $gallery_album->get_albumbox(false, 'album_id', false, true, false, \phpbbgallery\core\block::PUBLIC_ALBUM, \phpbbgallery\core\block::TYPE_UPLOAD));
+		$box = str_replace("select", 'select onchange="loadUpdateForm();"', $gallery_album->get_albumbox(false, 'album_id', false, 'i_upload', false, \phpbbgallery\core\block::PUBLIC_ALBUM, \phpbbgallery\core\block::TYPE_UPLOAD));
 		$this->template->assign_vars(array(
 			'S_SELECT_IMPORT' => $box,
 			'S_MAX_FILESIZE'		=> get_formatted_filesize($this->gallery_config->get('max_filesize')),
